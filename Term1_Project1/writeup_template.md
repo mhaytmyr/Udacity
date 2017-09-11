@@ -8,10 +8,6 @@ The goals / steps of this project are the following:
 
 
 [//]: # (Image References)
-
-[image1]: ./examples/region_of_interest.png "ROI"
-[image2]: ./examples/grayscale.jpg "Grayscale"
-[image3]: ./examples/ransac_example.png "RANSAC"
 ---
 
 ### Reflection
@@ -20,7 +16,7 @@ The goals / steps of this project are the following:
 
 My pipeline consisted of 5 steps. First, I converted the images to grayscale, 
 
-![alt text](image2)
+![alt text](./examples/grayscale.jpg)
 
 then I use Canny Edge detection method to extract edges from the image. I tuned paramteres to reduce background
 noise as much as possible. 
