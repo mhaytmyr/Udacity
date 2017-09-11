@@ -20,7 +20,7 @@ The goals / steps of this project are the following:
 
 My pipeline consisted of 5 steps. First, I converted the images to grayscale, 
 
-![alt text](./examples/grayscale.jpg)
+![alt text](image2)
 
 then I use Canny Edge detection method to extract edges from the image. I tuned paramteres to reduce background
 noise as much as possible. 
