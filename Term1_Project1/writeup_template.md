@@ -27,7 +27,7 @@ noise as much as possible.
 
 
 In the next step, I choose to analyze only section of image shown below.
-![alt text](https://github.com/mhaytmyr/Udacity/tree/project_one/Term1_Project1/examples/region_of_interest.png)     
+![alt text](./examples/region_of_interest.png)     
 
 Then I run hough tranformation to find out straight lines in the image. 
 In order to draw a single line on the left and right lanes, I modified the draw_lines() function by 
@@ -37,7 +37,7 @@ to left lane and lines with positive slope correspond to right lines.
 In the next step I fit those two categories separately to straight line. During the initial trial I realized 
 I was not able to get perfectly aligned lanes, the reason for that was there were some outliers which detoriated 
 slope. To overcome this issue, I used Random Sampling Consensus (RANSAC) algorithm. 
-![alt text](https://github.com/mhaytmyr/Udacity/tree/project_one/Term1_Project1/examples/ransac_example.png)
+![alt text](./examples/ransac_example.png)
   
 Then, extrapolated lines are blended with original image and roi is selected again.
 
