@@ -153,12 +153,12 @@ Here are the results of the prediction:
 |:---------------------:|:---------------------------------------------:| 
 | General Caution      	| General Caution								| 
 | Roundabout      		| Roundabout 									|
-| Speed limit (60km/h)	| Speed limit (30 km/h)							|
-| Stop	      			| Speed limit (20 km/h)			 				|
-| Go straigh or left	| Right of the way on the next intersection		|
-| Bicycles crossing     | Bicycles crossing                             |
+| Speed limit (60km/h)	| Speed limit (60 km/h)							|
+| Stop	      			| Stop	                 		 				|
+| Go straight or left	| Go straight or left                    		|
+| Bicycles crossing     | Slippery road                                 |
 
-The model was able to correctly guess 3 of the 6 traffic signs, which gives an accuracy of 50%. 
+The model was able to correctly guess 5 of the 6 traffic signs, which gives an accuracy of 50%. 
 This is not compares favorably to the accuracy on the test set. The model needs to be improved. 
 
 ####3. Describe how certain the model is when predicting on each of the five new images by looking at the softmax probabilities for each prediction. Provide the top 5 softmax probabilities for each image along with the sign type of each probability. (OPTIONAL: as described in the "Stand Out Suggestions" part of the rubric, visualizations can also be provided such as bar charts)
@@ -172,25 +172,29 @@ and the image contains general caution sign. The top three soft max probabilitie
 | Probability         	|     Prediction	        					| 
 |:---------------------:|:---------------------------------------------:| 
 | .99         			| General Caution								| 
-| .00     				| Pedestrians 									|
-| .00					| Traffic signals							    |
+| .00     				| Dangerous curve to the right					|
+| .00					| Traffic signals       					    |
 
 
 For the second image probability is small, however it still predicted right
 
 | Probability         	|     Prediction	        					| 
 |:---------------------:|:---------------------------------------------:| 
-| .35         			| Roundabout mandatory							| 
-| .24     				| Keep right 									|
-| .18					| No passing							        |
+| .65         			| Roundabout mandatory							| 
+| .16     				| Road work 									|
+| .07					| Go straight or left					        |
+| .04                   | Priority road                                 |
+| .04                   | Go straight or right                          |
 
-For the third image the model successfully predicted there is speed limit, but could not identify number.
+For the third image the model successfully predicted there is speed limit.
 
 | Probability         	|     Prediction	        					| 
 |:---------------------:|:---------------------------------------------:| 
-| .60         			| Speed limit (30km/h)							| 
-| .28     				| Speed limit (60km/h)							|
-| .13					| Speed limit (50km/h)					        |
+| .47         			| Speed limit (60km/h)							| 
+| .30     				| Speed limit (30km/h)							|
+| .15					| Speed limit (20km/h)					        |
+| .06                   | Road work                                     |
+| .01                   | Speed limit (80km/h)                          |
 
 
 
