@@ -92,7 +92,8 @@ also tuned based on the loss (model.py line 56)
 
 ####4. Appropriate training data
 
-Training data was chosen to keep the vehicle driving on the road. I used a combination of center lane driving, recovering from the left and right sides of the road and focusing on the road where algorithm failed the most. 
+Training data was chosen to keep the vehicle driving on the road. I used a combination of center lane driving, 
+recovering from the left and right sides of the road and focusing on the road where algorithm failed the most. 
 
 For details about how I created the training data, see the next section. 
 
@@ -123,17 +124,13 @@ At the end of the process, the vehicle is able to drive autonomously around the 
 The final model architecture (model.py lines 18-24) consisted of a convolution neural network with the following layers and layer sizes:
 Two convolution layers with dropout layers and two dense layers. 
 
-Here is a visualization of the architecture (note: visualizing the architecture is optional according to the project rubric)
-
-![alt text][image1]
 
 ####3. Creation of the Training Set & Training Process
 
-Initial attempt to record several laps revealed that
-car was able steer on the road where asphalt edge was prominent. However, it failed to pass curve right after the bridge, 
-it slided into dirt and continued as if it was road. I realized the main reason algorithm failed at this section is due 
-to not being able to detect edges. To overcome this issue, I created another dataset where I mainly focused on steering 
-around this postion of the road.  
+Initial attempt to train on data that recorded several laps revealed that car was not able to steer on the road where 
+asphalt edges were not visible. Especially, it failed to pass curve right after the bridge, it slided into dirt and
+continued as if it was road. To overcome this issue, I created another dataset where I mainly focused on steering 
+on this curve.  
 
 To capture good driving behavior, I first recorded two laps on track one using center lane driving. Here is an example image of center lane driving:
 
@@ -147,16 +144,18 @@ I then recorded the vehicle recovering from the left side and right sides of the
 
 Then I repeated this process on track two in order to get more data points.
 
-To augment the data sat, I also flipped images and angles thinking that this would ... For example, here is an image that has then been flipped:
+To augment the data sat, I also flipped images and angles thinking that this would help to generalize steering. 
+For example, here is an image that has then been flipped:
 
 ![alt text][image6]
 ![alt text][image7]
 
-Etc ....
 
-After the collection process, I had X number of data points. I then preprocessed this data by ...
-
+After the collection process, I had X number of data points. I then preprocessed this data by clipping top 60 pixels of image
+and normalizing it.  
 
 I finally randomly shuffled the data set and put Y% of the data into a validation set. 
 
-I used this training data for training the model. The validation set helped determine if the model was over or under fitting. The ideal number of epochs was Z as evidenced by ... I used an adam optimizer so that manually training the learning rate wasn't necessary.
+I used this training data for training the model. The validation set helped determine if the model was over or under
+fitting. The ideal number of epochs was 150 as evidenced by the training and testing losses.  
+I used an stochastic gradient optimizer so that training was faster training.

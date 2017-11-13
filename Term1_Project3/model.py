@@ -14,6 +14,51 @@ from keras import optimizers
 
 import h5py
 
+
+
+#-----------------------------------------------------
+#Helper function to save frames to hiearchical data file
+#-----------------------------------------------------
+def save_feature_hd5(camera_to_save="center"):
+        #first create features and labels
+        data = pd.read_csv("data/driving_log.csv",names=["center","left","right","steering","throttle","break","speed"])
+
+        #get shape of single image
+        img_shape = list(cv2.imread(data[camera_to_save][0]).shape)
+
+        data.reset_index(drop=True, inplace=True)
+        print(data.shape)
+
+        #create hierarchical data format (hdf5) file
+        f = h5py.File("driving_feature_map.h5","w")
+
+        #create group names
+        n_augment = 2
+        features_dataset = f.create_dataset("features",shape=[data.shape[0]*n_augment]+img_shape,dtype=np.uint8)
+        labels_dataset = f.create_dataset("labels",shape=[data.shape[0]*n_augment],dtype=np.float32)
+        
+        for i in range(0,data.shape[0]):
+                
+                #create images and labels
+                img1 = cv2.imread(data[camera_to_save][i])
+
+                #augment data by flipping it w.r.t y-coordinate
+                img2 = cv2.flip(img1,1)
+                images = np.concatenate([img1[np.newaxis],img2[np.newaxis]],axis=0)
+                
+                label1 = data["steering"][i]
+                label2 = -1.0*label1
+                labels = np.array([label1,label2]) 
+
+                #save images to hdf
+                features_dataset[i*n_augment:(i+1)*n_augment,:,:,:] = images
+                labels_dataset[i*n_augment:(i+1)*n_augment] = labels
+        
+                if i%500==0: print("Processing image {0:4d}".format(i))
+
+        f.close() 
+
+
 #----------------------------------------
 #Helper function to load features dataset
 #----------------------------------------
