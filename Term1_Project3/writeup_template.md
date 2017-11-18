@@ -14,13 +14,11 @@ The goals / steps of this project are the following:
 
 [//]: # (Image References)
 
-[image1]: ./examples/placeholder.png "Model Visualization"
-[image2]: ./examples/placeholder.png "Grayscaling"
-[image3]: ./examples/placeholder_small.png "Recovery Image"
-[image4]: ./examples/placeholder_small.png "Recovery Image"
-[image5]: ./examples/placeholder_small.png "Recovery Image"
-[image6]: ./examples/placeholder_small.png "Normal Image"
-[image7]: ./examples/placeholder_small.png "Flipped Image"
+[image1]: ./images/steering_distribution.png "Steering Distribution"
+[image2]: ./images/image_random_brightness.png "Image Random Brightness"
+[image3]: ./images/image_random_transition.png "Image Random Transition"
+[image4]: ./images/image_random_flip.png "Image Random Flip"
+[image5]: ./images/first_layer_features.png "Image Features"
 
 ## Rubric Points
 ###Here I will consider the [rubric points](https://review.udacity.com/#!/rubrics/432/view) individually and describe how I addressed each point in my implementation.  
@@ -52,25 +50,26 @@ The model.py file contains the code for training and saving the convolution neur
 
 My final model consisted of the following layers:
 
-| Layer                 |     Description                               | 
-|:---------------------:|:---------------------------------------------:| 
-| Input                 | 100x320x3 RGB scale image                     | 
-| Convolution 5x5       | 1x1 stride, valid padding, outputs 95x315x50  |
-| LeakyRELU             | 0.01 Alpha parameter                          |
-| Max pooling 2x2       | 2x2 stride, valid padding, outputs 15x15x64   |
-| Dropout               | Keep probability 70%                          |
-| Convolution 5x5       | 1x1 stride, valid padding, outputs 45x155x100 |
-| LeakyRELU             | 0.01 Alpha paramter                           |
-| Max pooling 2x2       | 2x2 stride, valid padding, outputs 20x75x100  |
-| Dropout               | Keep probability 50%                          |
-| Fully connected       | Layer 100                                     |
-| Linear                |                                               |
-| Dropout               | Keep probability 70%                          |
-| Fully connected       | Layer 1                                       |
+| Layer                 |     Description                               |    Number of Parameters  |
+|:---------------------:|:---------------------------------------------:|:------------------------:|
+| Input                 | 100x320x3 RGB scale image                     |          0               |
+| Convolution 5x5       | 1x1 stride, valid padding, outputs 96x316x24  |          1824            |
+| LeakyRELU             | 0.01 Alpha parameter                          |           0              |
+| Max pooling 2x2       | 2x2 stride, valid padding, outputs 48x158x64  |           0              |
+| Dropout               | Keep probability 70%                          |           0              |
+| Convolution 5x5       | 1x1 stride, valid padding, outputs 44x155x36  |         21636            |
+| LeakyRELU             | 0.01 Alpha paramter                           |           0              |
+| Max pooling 2x2       | 2x2 stride, valid padding, outputs 22x77x100  |          0               |
+| Dropout               | Keep probability 50%                          |           0              |
+| Fully connected       | Layer 100                                     |         6098500          | 
+| Linear                |                                               |           0              |
+| Dropout               | Keep probability 70%                          |           0              |
+| Fully connected       | Layer 1                                       |          101             |
 | Linear                |                                               |
 
 
-My model consists of a two convolution layers followed by two fully connected dense layers. (model.py lines 34-51) 
+My model consists of a two convolution layers followed by two fully connected dense layers. (model.py lines 34-51)
+The total number of trainable paramters are 6,122,061.  
 
 The model includes LeakyRELU activation layers to introduce nonlinearity (code line 41,45), and the data is normalized 
 in the model using a Keras lambda layer (code line 39). Carefull investigation of all images revealed that top portion
@@ -79,10 +78,10 @@ of images are less relevant for steering, thus top 60 pixel of images were not u
 ####2. Attempts to reduce overfitting in the model
 
 The model contains dropout layers in order to reduce overfitting (model.py lines 43,48 and 50). Dropout layer between
-convolution layers and dense layers were chosen higher values since most of the features propogated were expected to produce
-noise.  
+convolution layers and dense layers were chosen higher values since most of the features propogated are not important.  
 
-The model was trained and validated on different data sets to ensure that the model was not overfitting (code line 58-59). The model was tested by running it through the simulator and ensuring that the vehicle could stay on the track.
+The model was trained and validated on different data sets to ensure that the model was not overfitting (code line 58-59). 
+ The model was tested by running it through the simulator and ensuring that the vehicle could stay on the track.
 
 ####3. Model parameter tuning
 
@@ -121,41 +120,44 @@ At the end of the process, the vehicle is able to drive autonomously around the 
 
 ####2. Final Model Architecture
 
-The final model architecture (model.py lines 18-24) consisted of a convolution neural network with the following layers and layer sizes:
-Two convolution layers with dropout layers and two dense layers. 
+The final model architecture (model.py lines 18-24) consisted of a convolution neural network with the following layers 
+and layer sizes: Two convolution layers, droput layer and one final hidden layer.  
 
 
 ####3. Creation of the Training Set & Training Process
 
-Initial attempt to train on data that recorded several laps revealed that car was not able to steer on the road where 
+Initial attempt to train on data that recorded several laps revealed that car was not able to maneuver on the road where 
 asphalt edges were not visible. Especially, it failed to pass curve right after the bridge, it slided into dirt and
-continued as if it was road. To overcome this issue, I created another dataset where I mainly focused on steering 
-on this curve.  
+continued as if it was road. I also realized that distribution of steering angle was not even, it was highly 
+skewed toward the central driving. Therefore, I decided to augment dataset, especailly I concentrated on the steereing 
+angles that have higher values. Following image shows steering distribution before and after balancing.  
 
-To capture good driving behavior, I first recorded two laps on track one using center lane driving. Here is an example image of center lane driving:
+![alt text][image1]  
+
+To balance dataset I augmented steering angles that fall to the tail of distribution as follows:
+I randomly changed the brighness of camera, randomly shift image on horizontal axis or flip image with respect to verical 
+axis. This would also help model better generalize steering angle. 
+Following images show several of those images after each transformation:
 
 ![alt text][image2]
-
-I then recorded the vehicle recovering from the left side and right sides of the road back to center so that the vehicle would learn to .... These images show what a recovery looks like starting from ... :
-
 ![alt text][image3]
 ![alt text][image4]
+
+After these transformation I saved images as HDF file format. This allowed me store huge amount of data and access its 
+elements efficiently. After the collection process, I had 27500 number of images. I then preprocessed this data by 
+clipping top 60 pixels of image and normalizing it. I finally randomly shuffled the data set and put 
+35% of the data into a validation set.  I used this training data for training the model. 
+The validation set helped determine if the model was over or under fitting. Initially, I started training with 5 epochs and 
+gradually increased total epoch size to 50. After each iteration I examined validation and training errors to tune 
+hyperparametes or to make decition whether to continue to the next iteration. 
+For the optimization algorithm I used adam optimizer with learning rate 0.001 and decay rate of 1e-5. 
+
+After all, I vizualized if learned features make sense. I examined first layer and found out that it mostly learned edges 
+of the lane, which is what I expected. Below is the example of one image from 1st convolution layer. 
+
 ![alt text][image5]
 
-Then I repeated this process on track two in order to get more data points.
-
-To augment the data sat, I also flipped images and angles thinking that this would help to generalize steering. 
-For example, here is an image that has then been flipped:
-
-![alt text][image6]
-![alt text][image7]
 
 
-After the collection process, I had X number of data points. I then preprocessed this data by clipping top 60 pixels of image
-and normalizing it.  
+ 
 
-I finally randomly shuffled the data set and put Y% of the data into a validation set. 
-
-I used this training data for training the model. The validation set helped determine if the model was over or under
-fitting. The ideal number of epochs was 150 as evidenced by the training and testing losses.  
-I used an stochastic gradient optimizer so that training was faster training.

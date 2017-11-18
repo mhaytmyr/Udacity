@@ -17,8 +17,6 @@ import tensorflow as tf
 import h5py
 from keras import __version__ as keras_version
 
-import cv2
-
 sio = socketio.Server()
 app = Flask(__name__)
 model = None
@@ -50,40 +48,36 @@ controller = SimplePIController(0.1, 0.002)
 set_speed = 20 #default 9
 controller.set_desired(set_speed)
 
+new_size_col,new_size_row = 64, 64
 
 @sio.on('telemetry')
 def telemetry(sid, data):
-    if data:
-        # The current steering angle of the car
-        steering_angle = data["steering_angle"]
-        # The current throttle of the car
-        throttle = data["throttle"]
-        # The current speed of the car
-        speed = data["speed"]
-        # The current image from the center camera of the car
-        imgString = data["image"]
-        image = Image.open(BytesIO(base64.b64decode(imgString)))
-        image_array = np.asarray(image)
-	##################################
-	###added by me to enhance contrast
-	##################################
-	#pre_process_image(image_array)
-	
-        steering_angle = float(model.predict(image_array[None, :, :, :], batch_size=1))
+	if data:
+		# The current steering angle of the car
+		steering_angle = data["steering_angle"]
+		# The current throttle of the car
+		throttle = data["throttle"]
+		# The current speed of the car
+		speed = data["speed"]
+		# The current image from the center camera of the car
+		imgString = data["image"]
+		image = Image.open(BytesIO(base64.b64decode(imgString)))
+                # PIL reads RGB need, convert it to BGR
+		image_array = np.asarray(image)[:,:,::-1]
+		steering_angle = float(model.predict(image_array[None, :, :, :], batch_size=1))
+		throttle = controller.update(float(speed))
 
-        throttle = controller.update(float(speed))
+		print(steering_angle, throttle)
+		send_control(steering_angle, throttle)
 
-        print(steering_angle, throttle)
-        send_control(steering_angle, throttle)
-
-        # save frame
-        if args.image_folder != '':
-            timestamp = datetime.utcnow().strftime('%Y_%m_%d_%H_%M_%S_%f')[:-3]
-            image_filename = os.path.join(args.image_folder, timestamp)
-            image.save('{}.jpg'.format(image_filename))
-    else:
-        # NOTE: DON'T EDIT THIS.
-        sio.emit('manual', data={}, skip_sid=True)
+		# save frame
+		if args.image_folder != '':
+			timestamp = datetime.utcnow().strftime('%Y_%m_%d_%H_%M_%S_%f')[:-3]
+			image_filename = os.path.join(args.image_folder, timestamp)
+			image.save('{}.jpg'.format(image_filename))
+	else:
+		# NOTE: DON'T EDIT THIS.
+		sio.emit('manual', data={}, skip_sid=True)
 
 
 @sio.on('connect')
@@ -127,7 +121,10 @@ if __name__ == '__main__':
         print('You are using Keras version ', keras_version,
               ', but the model was built using ', model_version)
 
-    model = load_model(args.model,custom_objects={"tf":tf}) #modfied by me
+    # load other constants defined during training 
+    model = load_model(args.model,custom_objects={"tf":tf,
+				"new_size_col":new_size_col,
+				"new_size_row":new_size_row})
 
     if args.image_folder != '':
         print("Creating image folder at {}".format(args.image_folder))
