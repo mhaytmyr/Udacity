@@ -52,32 +52,32 @@ new_size_col,new_size_row = 64, 64
 
 @sio.on('telemetry')
 def telemetry(sid, data):
-	if data:
-		# The current steering angle of the car
-		steering_angle = data["steering_angle"]
-		# The current throttle of the car
-		throttle = data["throttle"]
-		# The current speed of the car
-		speed = data["speed"]
-		# The current image from the center camera of the car
-		imgString = data["image"]
-		image = Image.open(BytesIO(base64.b64decode(imgString)))
-                # PIL reads RGB need, convert it to BGR
-		image_array = np.asarray(image)[:,:,::-1]
-		steering_angle = float(model.predict(image_array[None, :, :, :], batch_size=1))
-		throttle = controller.update(float(speed))
+    if data:
+        # The current steering angle of the car
+        steering_angle = data["steering_angle"]
+        # The current throttle of the car
+        throttle = data["throttle"]
+        # The current speed of the car
+        speed = data["speed"]
+        # The current image from the center camera of the car
+        imgString = data["image"]
+        image = Image.open(BytesIO(base64.b64decode(imgString)))
+        # PIL reads RGB need, convert it to BGR
+        image_array = np.asarray(image)[:,:,::-1]
+        steering_angle = float(model.predict(image_array[None, :, :, :], batch_size=1))
+        throttle = controller.update(float(speed))
 
-		print(steering_angle, throttle)
-		send_control(steering_angle, throttle)
+        print(steering_angle, throttle)
+        send_control(steering_angle, throttle)
 
-		# save frame
-		if args.image_folder != '':
-			timestamp = datetime.utcnow().strftime('%Y_%m_%d_%H_%M_%S_%f')[:-3]
-			image_filename = os.path.join(args.image_folder, timestamp)
-			image.save('{}.jpg'.format(image_filename))
-	else:
-		# NOTE: DON'T EDIT THIS.
-		sio.emit('manual', data={}, skip_sid=True)
+    	# save frame
+        if args.image_folder != '':
+            timestamp = datetime.utcnow().strftime('%Y_%m_%d_%H_%M_%S_%f')[:-3]
+            image_filename = os.path.join(args.image_folder, timestamp)
+            image.save('{}.jpg'.format(image_filename))
+    else:
+        # NOTE: DON'T EDIT THIS.
+        sio.emit('manual', data={}, skip_sid=True)
 
 
 @sio.on('connect')
