@@ -127,15 +127,16 @@ one fit looks as follows:
 #### 5. Curvature of the raod and position of vehicle.
 
 After fitting lane center I extract coefficients as follows. 
+
+```latex
 \begin{equation}
-    f(y) = A*y^2+B*y+C
-\end{equation} 
+f(y) = A*y^2+B*y+C
+\end{eqaation}
+```
 
 then curvature, R is defined as 
 
-\begin{eqation}
-    R = \frac{(1+(2A+B)^2)^3/2}{|2A|}
-\end{equation}
+* R = 1/|2A| * (1+(2A+B)^2)^3/2
 
 The position of the vehicle is determined by the deviation center of lines with center of image. 
 I use 3.7/700 m/pixels to convert this to meters. The implementation of these formulas are in the IPython notebook
