@@ -129,24 +129,26 @@ one fit looks as follows:
 After fitting lane center I extract coefficients as follows. 
 
 ```latex
-\begin{equation}
 f(y) = A*y^2+B*y+C
-\end{eqaation}
 ```
 
 then curvature, R is defined as 
-
-* R = 1/|2A| * (1+(2A+B)^2)^3/2
+```latex
+ R = 1/|2A| * (1+(2A+B)^2)^3/2
+```
 
 The position of the vehicle is determined by the deviation center of lines with center of image. 
 I use 3.7/700 m/pixels to convert this to meters. The implementation of these formulas are in the IPython notebook
 code cell #7
 
 #### 6. Final Image Output
+
 In the final step after I have computed polynomial lines I unwrap image back to original position and color the 
 detected lanes. I implemented this step in code cell #9 in IPython notebook in the function `project_fitted_line_back()`.  
 Here is an example of my result on a test image:
+
 ![alt text][image9]
+
 ---
 
 ### Pipeline (video)
