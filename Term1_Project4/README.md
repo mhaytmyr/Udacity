@@ -21,34 +21,14 @@ The goals / steps of this project are the following:
 [image3]: ./examples/binary_combo_example.jpg "Binary Example"
 [image4]: ./examples/hls_color_space.jpg "HLS Color Space"
 [image5]: ./examples/warped_straight_lines.jpg "Warp Example"
-[image6]: ./examples/color_fit_lines.jpg "Fit Visual"
-[image7]: ./examples/example_output.jpg "Output"
+[image6]: ./examples/sliding_window.jpg "Sliding Window"
+[image7]: ./examples/poly_fit_example.jpg "Fit Visual"
+[image8]: ./examples/color_fit_lines.jpg "Curvature formula"
+[image9]: ./examples/example_output.jpg "Output Image"
 [video1]: ./project_video.mp4 "Video"
 
-## [Rubric](https://review.udacity.com/#!/rubrics/571/view) Points
-
-### Here I will consider the rubric points individually and describe how I addressed each point in my implementation.  
 
 ---
-
-### Camera Calibration
-
-#### 1. Briefly state how you computed the camera matrix and distortion coefficients. Provide an example of a distortion corrected calibration image.
-
-The code for this step is contained in the first and second code cell of the IPython notebook located in 
-"./examples/Pipeline\_Prototyping.ipynb" (or in lines # through # of the file called `some_file.py`).  
-
-I start by preparing "object points", which will be the (x, y, z) coordinates of the chessboard corners in the world. 
-Here I am assuming the chessboard is fixed on the (x, y) plane at z=0, such that the object points are the same for each 
-calibration image.  Thus, `objp` is just a replicated array of coordinates, and `objpoints` will be appended with a copy of 
-it every time I successfully detect all chessboard corners in a test image. `imgpoints` will be appended with the 
-(x, y) pixel position of each of the corners in the image plane with each successful chessboard detection.  
-
-I then use the output `objpoints` and `imgpoints` to compute the camera calibration and distortion coefficients using the 
-`cv2.calibrateCamera()` function.  I applied this distortion correction to the test image using the `cv2.undistort()` function and obtained this result: 
-
-![alt text][image1]
-
 ### Pipeline (single images)
 
 Before working with real video I prototype pipeline on single images. Overview of pipeline is as follows:
@@ -60,7 +40,20 @@ Before working with real video I prototype pipeline on single images. Overview o
 * Fit measured points to polynomial and,
 * Extract road curvature and position of vehicle
 
-#### 1. Distortion correction pipeline.
+#### 1. Camera Callibration and Distortion Correction.
+
+The code for this step is contained in the first and second code cell of the IPython notebook located in
+"./examples/Pipeline\_Prototyping.ipynb".
+
+I start by preparing "object points", which will be the (x, y, z) coordinates of the chessboard corners in the world.
+Here I am assuming the chessboard is fixed on the (x, y) plane at z=0, such that the object points are the same for each
+calibration image.  Thus, `objp` is just a replicated array of coordinates, and `objpoints` will be appended with a copy of
+it every time I successfully detect all chessboard corners in a test image. `imgpoints` will be appended with the
+(x, y) pixel position of each of the corners in the image plane with each successful chessboard detection.
+
+I then use the output `objpoints` and `imgpoints` to compute the camera calibration and distortion coefficients using the
+`cv2.calibrateCamera()` function.  I applied this distortion correction to the test image using the `cv2.undistort()` 
+function.
 
 In the previous step, after callibration I store necessary parameters as pickle file so that I don't have to repeat
 same procedure for each image. The cv2.calibrateCamera() returns camera matrix and distortion coefficients. 
@@ -113,22 +106,46 @@ its warped counterpart to verify that the lines appear parallel in the warped im
 
 ![alt text][image5]
 
-#### 4. Describe how (and identify where in your code) you identified lane-line pixels and fit their positions with a polynomial?
+#### 4. Lane Identification
+To find coorect lane lines I use sliding window technique. Initially, I divide image into 9 eqally spaced vertical segments.
+For each segment I sum pixels in vertical axis. Then, I search for maximum in the left- and right-half of resulting image.
+This gives me approximate position where lane is located. To avoid noise in each segment, I narrow search window 
+to +/-80 pixels of the previously found peak center. In some cases when there is a gap between white lanes search window
+fails to find peak and return first index of search window which results in the shift of window. To overcome this issue
+I check for window content, if it has zero sum then I use previous known two point to propogate center (implementation
+in the IPython notebook code cell 6 in the find\_window\_centroids() function)
 
-Then I did some other stuff and fit my lane lines with a 2nd order polynomial kinda like this:
-
-![alt text][image5]
-
-#### 5. Describe how (and identify where in your code) you calculated the radius of curvature of the lane and the position of the vehicle with respect to center.
-
-I did this in lines # through # in my code in `my_other_file.py`
-
-#### 6. Provide an example image of your result plotted back down onto the road such that the lane area is identified clearly.
-
-I implemented this step in lines # through # in my code in `yet_another_file.py` in the function `map_lane()`.  Here is an example of my result on a test image:
-
+Following picture shows one result of sliding window approach:
 ![alt text][image6]
 
+In the next step I use central points from the previous step to perform polynomial fit. I use second order polynomial
+to describe curvature of the lane. The code which performs this operation is on IPython notebook code cell 7. The result of 
+one fit looks as follows:
+
+![alt text][image7]
+
+#### 5. Curvature of the raod and position of vehicle.
+
+After fitting lane center I extract coefficients as follows. 
+\begin{equation}
+    f(y) = A*y^2+B*y+C
+\end{equation} 
+
+then curvature, R is defined as 
+
+\begin{eqation}
+    R = \frac{(1+(2A+B)^2)^3/2}{|2A|}
+\end{equation}
+
+The position of the vehicle is determined by the deviation center of lines with center of image. 
+I use 3.7/700 m/pixels to convert this to meters. The implementation of these formulas are in the IPython notebook
+code cell #7
+
+#### 6. Final Image Output
+In the final step after I have computed polynomial lines I unwrap image back to original position and color the 
+detected lanes. I implemented this step in code cell #9 in IPython notebook in the function `project_fitted_line_back()`.  
+Here is an example of my result on a test image:
+![alt text][image9]
 ---
 
 ### Pipeline (video)
