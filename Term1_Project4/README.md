@@ -57,8 +57,8 @@ function.
 
 In the previous step, after callibration I store necessary parameters as pickle file so that I don't have to repeat
 same procedure for each image. The cv2.calibrateCamera() returns camera matrix and distortion coefficients. 
-Camera matrix describes intrinsic properties of camera such as focal length (f\_x, f\_{y}) and optical centers 
-(c\_{x},c\_{y}). Distortion coefficients are size 5 array, of which first 2 corresponds to radial distortion and 
+Camera matrix describes intrinsic properties of camera such as focal length (f\_x, f\_y) and optical centers 
+(c\_x,c\_y). Distortion coefficients are size 5 array, of which first 2 corresponds to radial distortion and 
 next two are tangental distortion coefficients. 
 
 To demonstrate this step, I will describe how I apply the distortion correction to one of the test images like this one:
