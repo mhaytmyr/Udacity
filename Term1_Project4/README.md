@@ -3,17 +3,6 @@
 
 **Advanced Lane Finding Project**
 
-The goals / steps of this project are the following:
-
-* Compute the camera calibration matrix and distortion coefficients given a set of chessboard images.
-* Apply a distortion correction to raw images.
-* Use color transforms, gradients, etc., to create a thresholded binary image.
-* Apply a perspective transform to rectify binary image ("birds-eye view").
-* Detect lane pixels and fit to find the lane boundary.
-* Determine the curvature of the lane and vehicle position with respect to center.
-* Warp the detected lane boundaries back onto the original image.
-* Output visual display of the lane boundaries and numerical estimation of lane curvature and vehicle position.
-
 [//]: # (Image References)
 
 [image1]: ./examples/test_undist.jpg "Undistorted"
@@ -25,7 +14,7 @@ The goals / steps of this project are the following:
 [image7]: ./examples/poly_fit_example.jpg "Fit Visual"
 [image8]: ./examples/color_fit_lines.jpg "Curvature formula"
 [image9]: ./examples/example_output.jpg "Output Image"
-[video1]: ./project_video.mp4 "Video"
+[video1]: ./output_images/project_video.mp4 "Video"
 
 
 ---
@@ -144,7 +133,7 @@ code cell #7
 #### 6. Final Image Output
 
 In the final step after I have computed polynomial lines I unwrap image back to original position and color the 
-detected lanes. I implemented this step in code cell #9 in IPython notebook in the function `project_fitted_line_back()`.  
+detected lanes. I implemented this step in code cell 9 in IPython notebook in the function `project_fitted_line_back()`.  
 Here is an example of my result on a test image:
 
 ![alt text][image9]
@@ -153,14 +142,27 @@ Here is an example of my result on a test image:
 
 ### Pipeline (video)
 
-#### 1. Provide a link to your final video output.  Your pipeline should perform reasonably well on the entire project video (wobbly lines are ok but no catastrophic failures that would cause the car to drive off the road!).
-
-Here's a [link to my video result](./project_video.mp4)
+Using whole pipeline I process whole vide clip. However, I realized in some cases lines get distracted by the cars 
+that pass next to them. Therefore, I created `Lines()` class where I store good fitted lines from previous frames. 
+Criteria I use to decide whether current points are good by looking at the difference between two lines. An implemntation
+of the class and related functions can be found in IPython notebook code cell 10. Here is the final clip result.
+![alt text][video1]
 
 ---
 
 ### Discussion
 
-#### 1. Briefly discuss any problems / issues you faced in your implementation of this project.  Where will your pipeline likely fail?  What could you do to make it more robust?
 
 Here I'll talk about the approach I took, what techniques I used, what worked and why, where the pipeline might fail and how I might improve it if I were going to pursue this project further.  
+
+In this project I realized one of the main challenges of lane finding is shadows. To overcome this issue I tried to utilize
+different color spectra. I realized Saturation and Luminesence were somewhat better than original RGB spectra. 
+
+I have also realized above method I used might not work well when there is significant amount of shadow on either side of 
+lanes. Especially, if there is a wall that can be mistakenly understood as shadow. To solve this issue one can utilize 
+shadow removal algorithms. 
+
+The next major problem of my current implementation is efficiency, algorithm is very slow to run on real time. Therefore,
+optimization is necessary. I think algorithm can be optimized further by utilizing previous measurements more and reducing 
+sliding window measurement. Right now, I am using constant search window which can be reduced by using older measurements 
+and setting upper limit. 
